@@ -1,4 +1,12 @@
+
 import React from "react";
+import {
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 interface DistributionItem {
   label: string;
@@ -23,8 +31,28 @@ export const PieChart: React.FC = () => {
       <div className="text-sm text-[#0E3C48] p-3">Case Volume Distribution</div>
       <div className="flex gap-8 items-center px-6 py-[30px]">
         <div className="relative w-[208px] h-[208px]">
-          {/* Placeholder for actual pie chart implementation */}
-          <div className="w-full h-full rounded-full bg-[#F6F8F9]"></div>
+          <ResponsiveContainer width="100%" height="100%">
+            <RechartsPieChart>
+              <Pie
+                data={distributions}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={90}
+                innerRadius={30}
+                paddingAngle={2}
+                dataKey="percentage"
+              >
+                {distributions.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip 
+                formatter={(value) => `${value}%`}
+                labelFormatter={(index) => distributions[index as number].label}
+              />
+            </RechartsPieChart>
+          </ResponsiveContainer>
         </div>
         <div className="flex flex-col gap-2">
           {distributions.map((item, index) => (
