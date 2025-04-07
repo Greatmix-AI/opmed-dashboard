@@ -1,19 +1,33 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
+import { 
+  Menu, 
+  BarChart2, 
+  Calendar, 
+  Settings, 
+  LineChart, 
+  PieChart,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
 
 interface SidebarProps {
   className?: string;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <div
       className={cn(
-        "w-[74px] flex flex-col items-center relative bg-[#0E3C48] px-4 py-6",
+        "flex flex-col items-center relative bg-[#0E3C48] transition-all duration-300",
+        expanded ? "w-64" : "w-[74px]",
         className,
       )}
     >
-      <div className="mb-8">
+      <div className="mb-8 mt-6">
         <div className="cursor-pointer">
           <svg
             width="29"
@@ -30,17 +44,51 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </div>
       </div>
       <div className="flex flex-col gap-4 flex-1">
-        <NavButton icon="menu" />
-        <NavButton icon="chart" />
-        <NavButton icon="calendar" />
-        <NavButton icon="settings" />
-        <NavButton icon="analytics" />
-        <NavButton icon="stats" />
+        <NavButton 
+          icon={<Menu />} 
+          label="Dashboard" 
+          expanded={expanded}
+          isActive={true}
+        />
+        <NavButton 
+          icon={<BarChart2 />} 
+          label="Performance" 
+          expanded={expanded} 
+        />
+        <NavButton 
+          icon={<Calendar />} 
+          label="Schedule" 
+          expanded={expanded} 
+        />
+        <NavButton 
+          icon={<Settings />} 
+          label="Settings" 
+          expanded={expanded} 
+        />
+        <NavButton 
+          icon={<LineChart />} 
+          label="Analytics" 
+          expanded={expanded} 
+        />
+        <NavButton 
+          icon={<PieChart />} 
+          label="Reports" 
+          expanded={expanded} 
+        />
       </div>
-      <div className="flex flex-col gap-4 w-full">
-        <div className="flex flex-col items-center justify-center h-[52px] text-[#E6F3F4] text-sm bg-[#175A63] p-1 rounded-lg">
-          <span>GMC</span>
+      <div className="flex flex-col gap-4 w-full items-center mb-6">
+        <div className="flex flex-col items-center justify-center h-[52px] w-full px-3">
+          {expanded ? (
+            <div className="flex items-center justify-center w-full bg-[#175A63] rounded-lg p-3">
+              <span className="text-[#E6F3F4] text-sm">Health System</span>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[52px] text-[#E6F3F4] text-sm bg-[#175A63] p-1 rounded-lg w-12">
+              <span>GMC</span>
+            </div>
+          )}
         </div>
+        
         <div className="flex justify-center items-center h-[52.5px] w-[52.5px] cursor-pointer p-4 rounded-lg">
           <svg width="21" height="20" viewBox="0 0 21 20" fill="none">
             <path
@@ -55,28 +103,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           </div>
         </div>
       </div>
-      <div className="absolute w-8 h-8 flex justify-center items-center bg-[#0E3C48] rounded-[27px] -right-4 top-6">
-        <svg width="29" height="28" viewBox="0 0 29 28" fill="none">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M18.0301 13.2185L17.2201 14L18.0301 14.7815C18.4774 14.3499 18.4774 13.6501 18.0301 13.2185Z"
-            fill="#68A1BD"
-          />
-        </svg>
-      </div>
+      <button 
+        className="absolute w-8 h-8 flex justify-center items-center bg-[#0E3C48] rounded-[27px] -right-4 top-6 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? (
+          <ChevronLeft size={16} className="text-[#68A1BD]" />
+        ) : (
+          <ChevronRight size={16} className="text-[#68A1BD]" />
+        )}
+      </button>
     </div>
   );
 };
 
 interface NavButtonProps {
-  icon: string;
+  icon: React.ReactNode;
+  label: string;
+  expanded: boolean;
+  isActive?: boolean;
 }
 
-const NavButton: React.FC<NavButtonProps> = ({ icon }) => {
+const NavButton: React.FC<NavButtonProps> = ({ icon, label, expanded, isActive = false }) => {
   return (
-    <div className="flex justify-center items-center h-[52.5px] w-[52.5px] cursor-pointer p-4 rounded-lg hover:bg-[#175A63] transition-colors">
+    <div 
+      className={cn(
+        "flex items-center cursor-pointer rounded-lg transition-colors",
+        expanded ? "w-[calc(100%-24px)] px-4 py-3" : "justify-center w-[52.5px] p-4",
+        isActive ? "bg-[#175A63]" : "hover:bg-[#175A63]"
+      )}
+    >
       <div className="text-[#E6F3F4]">{icon}</div>
+      {expanded && (
+        <span className="text-[#E6F3F4] ml-3 whitespace-nowrap">{label}</span>
+      )}
     </div>
   );
 };
