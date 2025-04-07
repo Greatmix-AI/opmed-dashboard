@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -9,6 +9,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Sample data for 24-hour case volume
 const hourlyData = [
@@ -38,39 +45,69 @@ const hourlyData = [
   { time: "23:00", cases: 3 },
 ];
 
+// Generate sample data for weekly view
+const generateWeeklyData = () => {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weeklyData = [];
+  
+  days.forEach(day => {
+    // Random value between 45-70 for 12 AM
+    const amValue = Math.floor(Math.random() * 26) + 45;
+    // Random value between 45-70 for 12 PM
+    const pmValue = Math.floor(Math.random() * 26) + 45;
+    
+    weeklyData.push({ time: `${day} 12 AM`, cases: amValue });
+    weeklyData.push({ time: `${day} 12 PM`, cases: pmValue });
+  });
+  
+  return weeklyData;
+};
+
+const weeklyData = generateWeeklyData();
+
 export const LineChart: React.FC = () => {
+  const [viewType, setViewType] = useState<"daily" | "weekly">("daily");
+  
+  const currentData = viewType === "daily" ? hourlyData : weeklyData;
+  
   return (
     <div className="flex-1 bg-white rounded-md">
       <div className="flex justify-between items-center p-3">
         <div className="text-sm text-[#0E3C48]">Case Volume Overtime</div>
-        <div className="flex items-center gap-2 border text-xs text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
-          <span>Daily</span>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M10.5582 12.7604L10 12.1818L9.44176 12.7604C9.75007 13.0799 10.2499 13.0799 10.5582 12.7604Z"
-              fill="#676879"
-            />
-          </svg>
-        </div>
+        <Select
+          value={viewType}
+          onValueChange={(value) => setViewType(value as "daily" | "weekly")}
+        >
+          <SelectTrigger className="w-[90px] h-auto border text-xs text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
+            <SelectValue placeholder="View" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="daily">Daily</SelectItem>
+            <SelectItem value="weekly">Weekly</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="p-4">
         <ResponsiveContainer width="100%" height={200}>
           <RechartsLineChart
-            data={hourlyData}
+            data={currentData}
             margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="time"
               tick={{ fontSize: 10 }}
-              tickFormatter={(value) => value.split(":")[0] + "h"}
-              interval={3}
+              tickFormatter={(value) => {
+                if (viewType === "daily") {
+                  return value.split(":")[0] + "h";
+                }
+                return value;
+              }}
+              interval={viewType === "daily" ? 3 : 1}
             />
             <YAxis
               tick={{ fontSize: 10 }}
-              domain={[0, 'dataMax + 5']}
+              domain={viewType === "daily" ? [0, 'dataMax + 5'] : [40, 75]}
               tickCount={5}
             />
             <Tooltip
