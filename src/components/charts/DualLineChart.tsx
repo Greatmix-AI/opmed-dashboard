@@ -76,12 +76,99 @@ const generateWeeklyData = () => {
   return weeklyData;
 };
 
+// Generate sample data for monthly view (30 days)
+const generateMonthlyData = () => {
+  const monthlyData = [];
+  
+  // Generate data for 30 days
+  for (let i = 1; i <= 30; i++) {
+    monthlyData.push({ 
+      time: `Day ${i}`, 
+      cases: Math.floor(Math.random() * 100) + 300,
+      efficiency: Math.floor(Math.random() * 20) + 70 // Random efficiency between 70-90
+    });
+  }
+  
+  return monthlyData;
+};
+
+// Generate sample data for quarterly view (3 months)
+const generateQuarterlyData = () => {
+  const months = ["Jan", "Feb", "Mar"];
+  const quarterlyData = [];
+  
+  months.forEach(month => {
+    // Weekly data points for each month (4 weeks per month)
+    for (let week = 1; week <= 4; week++) {
+      quarterlyData.push({
+        time: `${month} W${week}`,
+        cases: Math.floor(Math.random() * 500) + 1000,
+        efficiency: Math.floor(Math.random() * 15) + 75 // Random efficiency between 75-90
+      });
+    }
+  });
+  
+  return quarterlyData;
+};
+
 const weeklyData = generateWeeklyData();
+const monthlyData = generateMonthlyData();
+const quarterlyData = generateQuarterlyData();
 
 export const DualLineChart: React.FC = () => {
-  const [viewType, setViewType] = useState<"daily" | "weekly">("daily");
+  const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
   
-  const currentData = viewType === "daily" ? hourlyData : weeklyData;
+  const getChartData = () => {
+    switch (viewType) {
+      case "daily":
+        return hourlyData;
+      case "weekly":
+        return weeklyData;
+      case "monthly":
+        return monthlyData;
+      case "quarterly":
+        return quarterlyData;
+      default:
+        return hourlyData;
+    }
+  };
+  
+  const getYAxisDomain = () => {
+    switch (viewType) {
+      case "daily":
+        return [0, 'dataMax + 5'];
+      case "weekly":
+        return [40, 75];
+      case "monthly":
+        return [250, 450];
+      case "quarterly":
+        return [800, 1600];
+      default:
+        return [0, 'dataMax + 5'];
+    }
+  };
+  
+  const getXAxisInterval = () => {
+    switch (viewType) {
+      case "daily":
+        return 3;
+      case "weekly":
+        return 1;
+      case "monthly":
+        return 4; // Show every 5th day
+      case "quarterly":
+        return 3; // Show every 4th data point
+      default:
+        return 3;
+    }
+  };
+  
+  const formatXAxisTick = (value: string) => {
+    if (viewType === "daily") {
+      return value.split(":")[0] + "h";
+    }
+    return value;
+  };
   
   return (
     <div className="flex-1 bg-white rounded-md">
@@ -89,7 +176,7 @@ export const DualLineChart: React.FC = () => {
         <div className="text-sm text-[#0E3C48]">Case Volume & Efficiency Overtime</div>
         <Select
           value={viewType}
-          onValueChange={(value) => setViewType(value as "daily" | "weekly")}
+          onValueChange={(value) => setViewType(value as "daily" | "weekly" | "monthly" | "quarterly")}
         >
           <SelectTrigger className="w-[90px] h-auto border text-xs text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
             <SelectValue placeholder="View" />
@@ -97,30 +184,27 @@ export const DualLineChart: React.FC = () => {
           <SelectContent>
             <SelectItem value="daily">Daily</SelectItem>
             <SelectItem value="weekly">Weekly</SelectItem>
+            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="quarterly">Quarterly</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div className="p-4">
         <ResponsiveContainer width="100%" height={200}>
           <RechartsLineChart
-            data={currentData}
+            data={getChartData()}
             margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="time"
               tick={{ fontSize: 10 }}
-              tickFormatter={(value) => {
-                if (viewType === "daily") {
-                  return value.split(":")[0] + "h";
-                }
-                return value;
-              }}
-              interval={viewType === "daily" ? 3 : 1}
+              tickFormatter={formatXAxisTick}
+              interval={getXAxisInterval()}
             />
             <YAxis
               tick={{ fontSize: 10 }}
-              domain={viewType === "daily" ? [0, 'dataMax + 5'] : [40, 75]}
+              domain={getYAxisDomain()}
               tickCount={5}
               yAxisId="left"
             />
