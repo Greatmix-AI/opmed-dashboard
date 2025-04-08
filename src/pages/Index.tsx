@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MetricCard } from "@/components/metrics/MetricCard";
@@ -92,11 +91,11 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Duplicated Overview Section with Updated Charts */}
+        {/* Timeliness Section (renamed from Overview) */}
         <div className="bg-[#D7E4E8] px-3 py-2 rounded-xl">
           <div className="flex justify-between items-center mb-3">
             <h1 className="text-base font-extrabold text-[#0E3C48]">
-              Overview
+              Timeliness
             </h1>
             <div className="flex bg-[#BFD3D8] p-1 rounded-md">
               <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md bg-white">
@@ -108,31 +107,21 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Metrics Grid */}
+          {/* Updated KPIs - Only 2 metrics now */}
           <div className="flex gap-3 mb-3 max-md:flex-wrap max-sm:flex-col">
             <MetricCard
-              title="Case Volume"
-              value="3"
-              change={{ value: "+12.5%", type: "increase" }}
+              title="First Case On-Time"
+              value="29%"
+              change={{ value: "-4.5%", type: "decrease" }}
             />
             <MetricCard
-              title="Case Minutes"
-              value="4,089,012"
-              change={{ value: "+8.3%", type: "increase" }}
-            />
-            <MetricCard
-              title="Staffed-Room Utilization"
-              value="76%"
-              change={{ value: "+3.2%", type: "increase" }}
-            />
-            <MetricCard
-              title="Block Utilization"
-              value="70%"
-              change={{ value: "+4.1%", type: "increase" }}
+              title="Turnaround Time"
+              value="35 mins"
+              change={{ value: "-2.3 mins", type: "decrease" }}
             />
           </div>
 
-          {/* Updated Charts */}
+          {/* Charts - Keeping the same charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
               <DualLineChart />
