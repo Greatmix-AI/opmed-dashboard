@@ -13,6 +13,10 @@ import {
   HoverCardContent,
 } from "@/components/ui/hover-card";
 
+interface DelayFactorsPieChartProps {
+  selectedSpecialties: string[];
+}
+
 interface DelayFactorItem {
   label: string;
   percentage: number;
@@ -53,7 +57,7 @@ const delayFactors: DelayFactorItem[] = [
   }
 ];
 
-export const DelayFactorsPieChart: React.FC = () => {
+export const DelayFactorsPieChart: React.FC<DelayFactorsPieChartProps> = ({ selectedSpecialties }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const handleMouseEnter = (data: any, index: number) => {
@@ -74,6 +78,17 @@ export const DelayFactorsPieChart: React.FC = () => {
     }
     return null;
   };
+
+  // If no specialties are selected, show empty state
+  if (!selectedSpecialties || selectedSpecialties.length === 0) {
+    return (
+      <div className="flex-1 bg-white rounded-md p-4 h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <p>Please select at least one specialty to view data</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 bg-white rounded-md">

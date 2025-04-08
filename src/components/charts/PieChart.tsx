@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -12,6 +12,10 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from "@/components/ui/hover-card";
+
+interface PieChartProps {
+  selectedSpecialties: string[];
+}
 
 interface DistributionItem {
   label: string;
@@ -71,8 +75,38 @@ const distributions: DistributionItem[] = [
   },
 ];
 
-export const PieChart: React.FC = () => {
+export const PieChart: React.FC<PieChartProps> = ({ selectedSpecialties }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [filteredDistributions, setFilteredDistributions] = useState<DistributionItem[]>([]);
+
+  useEffect(() => {
+    // If no specialties are selected or the array is undefined, show empty data
+    if (!selectedSpecialties || selectedSpecialties.length === 0) {
+      setFilteredDistributions([]);
+      return;
+    }
+
+    // Filter the distributions based on selected specialties
+    const filtered = distributions.filter(item => 
+      selectedSpecialties.includes(item.label)
+    );
+
+    // Recalculate percentages based on the filtered total
+    const totalPercentage = filtered.reduce((sum, item) => sum + item.percentage, 0);
+    
+    if (totalPercentage === 0) {
+      setFilteredDistributions([]);
+      return;
+    }
+
+    // Normalize percentages to total 100%
+    const normalized = filtered.map(item => ({
+      ...item,
+      percentage: Math.round((item.percentage / totalPercentage) * 100)
+    }));
+
+    setFilteredDistributions(normalized);
+  }, [selectedSpecialties]);
 
   const handleMouseEnter = (data: any, index: number) => {
     setActiveIndex(index);
@@ -93,6 +127,17 @@ export const PieChart: React.FC = () => {
     return null;
   };
 
+  // If no specialties are selected, show empty state
+  if (!selectedSpecialties || selectedSpecialties.length === 0 || filteredDistributions.length === 0) {
+    return (
+      <div className="flex-1 bg-white rounded-md p-4 h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <p>Please select at least one specialty to view data</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 bg-white rounded-md">
       <div className="text-sm text-[#0E3C48] p-3">Case Volume Distribution</div>
@@ -101,7 +146,7 @@ export const PieChart: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie
-                data={distributions}
+                data={filteredDistributions}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -113,7 +158,7 @@ export const PieChart: React.FC = () => {
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                {distributions.map((entry, index) => (
+                {filteredDistributions.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
                     fill={entry.color} 
@@ -127,7 +172,7 @@ export const PieChart: React.FC = () => {
           </ResponsiveContainer>
         </div>
         <div className="flex flex-col gap-2">
-          {distributions.map((item, index) => (
+          {filteredDistributions.map((item, index) => (
             <HoverCard key={index}>
               <HoverCardTrigger asChild>
                 <div 
