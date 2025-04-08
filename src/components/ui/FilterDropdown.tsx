@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -7,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface FilterDropdownProps {
@@ -30,7 +30,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     "Vascular Surgery",
   ];
   
-  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([...specialties]);
 
   const handleSelect = (specialty: string) => {
     setSelectedSpecialties((prev) => 
@@ -38,6 +38,14 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         ? prev.filter((item) => item !== specialty)
         : [...prev, specialty]
     );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedSpecialties.length === specialties.length) {
+      setSelectedSpecialties([]);
+    } else {
+      setSelectedSpecialties([...specialties]);
+    }
   };
 
   return (
@@ -50,7 +58,13 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
             className,
           )}
         >
-          <span>{selectedSpecialties.length > 0 ? `${selectedSpecialties.length} selected` : label}</span>
+          <span>
+            {selectedSpecialties.length === 0 
+              ? label 
+              : selectedSpecialties.length === specialties.length 
+                ? "Select all" 
+                : `${selectedSpecialties.length} selected`}
+          </span>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
               fillRule="evenodd"
@@ -62,6 +76,14 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[180px] bg-white border border-[#E6F3F4]">
+        <DropdownMenuCheckboxItem
+          checked={selectedSpecialties.length === specialties.length}
+          onCheckedChange={handleSelectAll}
+          className="font-medium"
+        >
+          Select all
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuSeparator />
         {specialties.map((specialty) => (
           <DropdownMenuCheckboxItem
             key={specialty}
