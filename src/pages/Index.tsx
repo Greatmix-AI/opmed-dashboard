@@ -6,7 +6,6 @@ import { LineChart } from "@/components/charts/LineChart";
 import { PieChart } from "@/components/charts/PieChart";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
-import { OperatingRoomSchedule } from "@/components/schedule/OperatingRoomSchedule";
 import { DelayFactorsPieChart } from "@/components/charts/DelayFactorsPieChart";
 import { DualLineChart } from "@/components/charts/DualLineChart";
 
@@ -141,9 +140,6 @@ const Index = () => {
             <DelayFactorsPieChart />
           </div>
         </div>
-
-        {/* Operating Room Schedule Section */}
-        <OperatingRoomSchedule />
       </div>
     </div>
   );
