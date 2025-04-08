@@ -86,7 +86,16 @@ const Index = () => {
 
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
-            <LineChart />
+            <div className="flex-1 bg-white rounded-md">
+              <div className="flex justify-between p-2 border-b border-gray-100">
+                <h3 className="text-sm font-semibold text-[#0E3C48]">Case Volume</h3>
+                <div className="flex gap-1 bg-[#F6F8F9] p-0.5 rounded-md text-xs">
+                  <button className="px-2 py-0.5 bg-white rounded">Monthly</button>
+                  <button className="px-2 py-0.5 rounded text-[#708090]">Quarterly</button>
+                </div>
+              </div>
+              <LineChart />
+            </div>
             <PieChart />
           </div>
         </div>
@@ -133,7 +142,16 @@ const Index = () => {
 
           {/* Updated Charts */}
           <div className="flex gap-3 max-md:flex-col">
-            <DualLineChart />
+            <div className="flex-1 bg-white rounded-md">
+              <div className="flex justify-between p-2 border-b border-gray-100">
+                <h3 className="text-sm font-semibold text-[#0E3C48]">Efficiency Metrics</h3>
+                <div className="flex gap-1 bg-[#F6F8F9] p-0.5 rounded-md text-xs">
+                  <button className="px-2 py-0.5 bg-white rounded">Monthly</button>
+                  <button className="px-2 py-0.5 rounded text-[#708090]">Quarterly</button>
+                </div>
+              </div>
+              <DualLineChart />
+            </div>
             <DelayFactorsPieChart />
           </div>
         </div>
