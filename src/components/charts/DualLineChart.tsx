@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 
 interface DualLineChartProps {
-  selectedSpecialties?: string[];
+  selectedSpecialties: string[];
 }
 
 // Sample data for 24-hour case volume with two data series
@@ -118,7 +118,7 @@ const weeklyData = generateWeeklyData();
 const monthlyData = generateMonthlyData();
 const quarterlyData = generateQuarterlyData();
 
-export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialties = [] }) => {
+export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialties }) => {
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
   const [filteredData, setFilteredData] = useState(hourlyData);
   

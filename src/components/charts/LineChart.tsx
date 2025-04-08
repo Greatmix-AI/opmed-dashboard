@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 interface LineChartProps {
-  selectedSpecialties?: string[];
+  selectedSpecialties: string[];
 }
 
 // Sample data for 24-hour case volume
@@ -103,7 +103,7 @@ const weeklyData = generateWeeklyData();
 const monthlyData = generateMonthlyData();
 const quarterlyData = generateQuarterlyData();
 
-export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties = [] }) => {
+export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties }) => {
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
   const [filteredData, setFilteredData] = useState(hourlyData);
   
