@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   LineChart as RechartsLineChart,
@@ -109,8 +110,11 @@ export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties }) => 
   
   // Effect to filter data when selected specialties change
   useEffect(() => {
-    // If no specialties are selected or all are selected, show full data
-    if (selectedSpecialties.length === 0) {
+    // Ensure selectedSpecialties is defined and has a length property
+    const specialtiesArray = selectedSpecialties || [];
+    
+    // If no specialties are selected, show empty data
+    if (specialtiesArray.length === 0) {
       setFilteredData([]);
       return;
     }
@@ -122,7 +126,7 @@ export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties }) => 
     
     // Apply a multiplier based on selected specialties to simulate filtering
     // More selected specialties = more data points with higher values
-    const multiplier = selectedSpecialties.length / 8; // 8 is the total number of specialties
+    const multiplier = specialtiesArray.length / 8; // 8 is the total number of specialties
     
     const newData = currentData.map(item => ({
       ...item,
@@ -190,7 +194,7 @@ export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties }) => 
   };
   
   // If no specialties are selected, show empty state
-  if (selectedSpecialties.length === 0) {
+  if (!selectedSpecialties || selectedSpecialties.length === 0) {
     return (
       <div className="p-4 h-full flex items-center justify-center">
         <div className="text-center text-gray-500">
