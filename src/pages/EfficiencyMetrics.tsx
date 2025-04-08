@@ -50,14 +50,6 @@ const EfficiencyMetrics = () => {
             <h1 className="text-base font-extrabold text-[#0E3C48]">
               Efficiency Metrics
             </h1>
-            <div className="flex bg-[#BFD3D8] p-1 rounded-md">
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md bg-white">
-                Patients
-              </button>
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md">
-                Therapists
-              </button>
-            </div>
           </div>
 
           {/* Metrics Grid */}
@@ -102,14 +94,6 @@ const EfficiencyMetrics = () => {
             <h1 className="text-base font-extrabold text-[#0E3C48]">
               Time & Resource Analysis
             </h1>
-            <div className="flex bg-[#BFD3D8] p-1 rounded-md">
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md bg-white">
-                Resources
-              </button>
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md">
-                Time
-              </button>
-            </div>
           </div>
 
           {/* Updated KPIs */}
