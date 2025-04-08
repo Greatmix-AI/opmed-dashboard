@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -12,13 +13,21 @@ import {
 interface FilterDropdownProps {
   label: string;
   className?: string;
+  options?: string[];
+  selectedOptions?: string[];
+  onSelectionChange?: (selected: string[]) => void;
 }
 
 export const FilterDropdown: React.FC<FilterDropdownProps> = ({
   label,
   className,
+  options = [],
+  selectedOptions = [],
+  onSelectionChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Use specialties if no options are provided (for backward compatibility)
   const specialties = [
     "General Surgery",
     "Orthopedic Surgery",
@@ -30,21 +39,26 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
     "Vascular Surgery",
   ];
   
-  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([...specialties]);
+  const actualOptions = options.length > 0 ? options : specialties;
+  const selected = selectedOptions.length > 0 ? selectedOptions : [...actualOptions];
 
   const handleSelect = (specialty: string) => {
-    setSelectedSpecialties((prev) => 
-      prev.includes(specialty) 
-        ? prev.filter((item) => item !== specialty)
-        : [...prev, specialty]
-    );
+    if (!onSelectionChange) return;
+    
+    const newSelection = selected.includes(specialty) 
+      ? selected.filter((item) => item !== specialty)
+      : [...selected, specialty];
+    
+    onSelectionChange(newSelection);
   };
 
   const handleSelectAll = () => {
-    if (selectedSpecialties.length === specialties.length) {
-      setSelectedSpecialties([]);
+    if (!onSelectionChange) return;
+    
+    if (selected.length === actualOptions.length) {
+      onSelectionChange([]);
     } else {
-      setSelectedSpecialties([...specialties]);
+      onSelectionChange([...actualOptions]);
     }
   };
 
@@ -59,11 +73,11 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
           )}
         >
           <span>
-            {selectedSpecialties.length === 0 
+            {selected.length === 0 
               ? label 
-              : selectedSpecialties.length === specialties.length 
+              : selected.length === actualOptions.length 
                 ? "Select all" 
-                : `${selectedSpecialties.length} selected`}
+                : `${selected.length} selected`}
           </span>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
@@ -77,20 +91,20 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[180px] bg-white border border-[#E6F3F4]">
         <DropdownMenuCheckboxItem
-          checked={selectedSpecialties.length === specialties.length}
+          checked={selected.length === actualOptions.length}
           onCheckedChange={handleSelectAll}
           className="font-medium"
         >
           Select all
         </DropdownMenuCheckboxItem>
         <DropdownMenuSeparator />
-        {specialties.map((specialty) => (
+        {actualOptions.map((option) => (
           <DropdownMenuCheckboxItem
-            key={specialty}
-            checked={selectedSpecialties.includes(specialty)}
-            onCheckedChange={() => handleSelect(specialty)}
+            key={option}
+            checked={selected.includes(option)}
+            onCheckedChange={() => handleSelect(option)}
           >
-            {specialty}
+            {option}
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>

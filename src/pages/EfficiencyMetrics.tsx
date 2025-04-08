@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MetricCard } from "@/components/metrics/MetricCard";
 import { LineChart } from "@/components/charts/LineChart";
@@ -11,6 +11,27 @@ import { DualLineChart } from "@/components/charts/DualLineChart";
 import { Separator } from "@/components/ui/separator";
 
 const EfficiencyMetrics = () => {
+  // Define the specialties array
+  const specialties = [
+    "General Surgery",
+    "Orthopedic Surgery",
+    "Urology",
+    "Gynecology",
+    "Cardiac Surgery",
+    "Neurosurgery",
+    "Plastic Surgery",
+    "Vascular Surgery",
+  ];
+  
+  // Initialize the state for selected specialties with all specialties
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([...specialties]);
+  
+  // Handler for specialty selection changes
+  const handleSpecialtyChange = (selected: string[]) => {
+    setSelectedSpecialties(selected);
+    console.log("Selected specialties changed:", selected);
+  };
+
   return (
     <div className="flex w-full h-screen bg-[#F6F8F9]">
       <Sidebar />
@@ -23,7 +44,12 @@ const EfficiencyMetrics = () => {
           </div>
           <div className="flex gap-3 max-sm:flex-col max-sm:w-full">
             <FilterDropdown label="Last 12 months" />
-            <FilterDropdown label="Select specialities" />
+            <FilterDropdown 
+              label="Select specialities" 
+              options={specialties}
+              selectedOptions={selectedSpecialties}
+              onSelectionChange={handleSpecialtyChange}
+            />
             <FilterDropdown label="Select location" />
           </div>
         </div>
@@ -82,9 +108,9 @@ const EfficiencyMetrics = () => {
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
-              <LineChart />
+              <LineChart selectedSpecialties={selectedSpecialties} />
             </div>
-            <PieChart />
+            <PieChart selectedSpecialties={selectedSpecialties} />
           </div>
         </div>
 
@@ -116,9 +142,9 @@ const EfficiencyMetrics = () => {
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
-              <DualLineChart />
+              <DualLineChart selectedSpecialties={selectedSpecialties} />
             </div>
-            <DelayFactorsPieChart />
+            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} />
           </div>
         </div>
       </div>

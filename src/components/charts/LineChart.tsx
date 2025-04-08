@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -15,6 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+interface LineChartProps {
+  selectedSpecialties?: string[];
+}
 
 // Sample data for 24-hour case volume
 const hourlyData = [
@@ -99,8 +103,34 @@ const weeklyData = generateWeeklyData();
 const monthlyData = generateMonthlyData();
 const quarterlyData = generateQuarterlyData();
 
-export const LineChart: React.FC = () => {
+export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties = [] }) => {
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
+  const [filteredData, setFilteredData] = useState(hourlyData);
+  
+  // Effect to filter data when selected specialties change
+  useEffect(() => {
+    // If no specialties are selected or all are selected, show full data
+    if (selectedSpecialties.length === 0) {
+      setFilteredData([]);
+      return;
+    }
+    
+    // Filter data based on selected specialties
+    // This is a simplified example - in a real-world scenario,
+    // you would have data specific to each specialty
+    const currentData = getChartData();
+    
+    // Apply a multiplier based on selected specialties to simulate filtering
+    // More selected specialties = more data points with higher values
+    const multiplier = selectedSpecialties.length / 8; // 8 is the total number of specialties
+    
+    const newData = currentData.map(item => ({
+      ...item,
+      cases: Math.round(item.cases * multiplier)
+    }));
+    
+    setFilteredData(newData);
+  }, [selectedSpecialties, viewType]);
   
   const getChartData = () => {
     switch (viewType) {
@@ -115,6 +145,11 @@ export const LineChart: React.FC = () => {
       default:
         return hourlyData;
     }
+  };
+  
+  // Update view type and trigger data filtering
+  const handleViewTypeChange = (value: string) => {
+    setViewType(value as "daily" | "weekly" | "monthly" | "quarterly");
   };
   
   const getYAxisDomain = (): [number, number | string] => {
@@ -154,13 +189,24 @@ export const LineChart: React.FC = () => {
     return value;
   };
   
+  // If no specialties are selected, show empty state
+  if (selectedSpecialties.length === 0) {
+    return (
+      <div className="p-4 h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <p>Please select at least one specialty to view data</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-3">
         <div className="text-sm text-[#0E3C48]">Case Volume Overtime</div>
         <Select
           value={viewType}
-          onValueChange={(value) => setViewType(value as "daily" | "weekly" | "monthly" | "quarterly")}
+          onValueChange={handleViewTypeChange}
         >
           <SelectTrigger className="w-[90px] h-auto border text-xs text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
             <SelectValue placeholder="View" />
@@ -175,7 +221,7 @@ export const LineChart: React.FC = () => {
       </div>
       <ResponsiveContainer width="100%" height={200}>
         <RechartsLineChart
-          data={getChartData()}
+          data={filteredData.length > 0 ? filteredData : getChartData()}
           margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} />

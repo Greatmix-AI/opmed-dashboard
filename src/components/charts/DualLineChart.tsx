@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -16,6 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+interface DualLineChartProps {
+  selectedSpecialties?: string[];
+}
 
 // Sample data for 24-hour case volume with two data series
 const hourlyData = [
@@ -114,8 +118,33 @@ const weeklyData = generateWeeklyData();
 const monthlyData = generateMonthlyData();
 const quarterlyData = generateQuarterlyData();
 
-export const DualLineChart: React.FC = () => {
+export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialties = [] }) => {
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
+  const [filteredData, setFilteredData] = useState(hourlyData);
+  
+  // Effect to filter data when selected specialties change
+  useEffect(() => {
+    // If no specialties are selected or all are selected, show full data
+    if (selectedSpecialties.length === 0) {
+      setFilteredData([]);
+      return;
+    }
+    
+    // Filter data based on selected specialties
+    const currentData = getChartData();
+    
+    // Apply a multiplier based on selected specialties to simulate filtering
+    // More selected specialties = more data points with higher values
+    const multiplier = selectedSpecialties.length / 8; // 8 is the total number of specialties
+    
+    const newData = currentData.map(item => ({
+      ...item,
+      cases: Math.round(item.cases * multiplier),
+      efficiency: Math.min(100, Math.round(item.efficiency * (0.7 + 0.3 * multiplier))) // Efficiency is affected less
+    }));
+    
+    setFilteredData(newData);
+  }, [selectedSpecialties, viewType]);
   
   const getChartData = () => {
     switch (viewType) {
@@ -130,6 +159,11 @@ export const DualLineChart: React.FC = () => {
       default:
         return hourlyData;
     }
+  };
+  
+  // Update view type and trigger data filtering
+  const handleViewTypeChange = (value: string) => {
+    setViewType(value as "daily" | "weekly" | "monthly" | "quarterly");
   };
   
   const getYAxisDomain = (): [number, number | string] => {
@@ -169,13 +203,24 @@ export const DualLineChart: React.FC = () => {
     return value;
   };
   
+  // If no specialties are selected, show empty state
+  if (selectedSpecialties.length === 0) {
+    return (
+      <div className="flex-1 bg-white rounded-md p-4 h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <p>Please select at least one specialty to view data</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="flex-1 bg-white rounded-md">
       <div className="flex justify-between items-center p-3">
         <div className="text-sm text-[#0E3C48]">Case Volume & Efficiency Overtime</div>
         <Select
           value={viewType}
-          onValueChange={(value) => setViewType(value as "daily" | "weekly" | "monthly" | "quarterly")}
+          onValueChange={handleViewTypeChange}
         >
           <SelectTrigger className="w-[90px] h-auto border text-xs text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
             <SelectValue placeholder="View" />
@@ -191,7 +236,7 @@ export const DualLineChart: React.FC = () => {
       <div className="p-4">
         <ResponsiveContainer width="100%" height={200}>
           <RechartsLineChart
-            data={getChartData()}
+            data={filteredData.length > 0 ? filteredData : getChartData()}
             margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
