@@ -66,17 +66,17 @@ const generateWeeklyData = () => {
 const weeklyData = generateWeeklyData();
 
 export const LineChart: React.FC = () => {
-  const [viewType, setViewType] = useState<"daily" | "weekly">("daily");
+  const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
   
   const currentData = viewType === "daily" ? hourlyData : weeklyData;
   
   return (
-    <div className="flex-1 bg-white rounded-md">
-      <div className="flex justify-between items-center p-3">
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-3">
         <div className="text-sm text-[#0E3C48]">Case Volume Overtime</div>
         <Select
           value={viewType}
-          onValueChange={(value) => setViewType(value as "daily" | "weekly")}
+          onValueChange={(value) => setViewType(value as "daily" | "weekly" | "monthly" | "quarterly")}
         >
           <SelectTrigger className="w-[90px] h-auto border text-xs text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
             <SelectValue placeholder="View" />
@@ -84,47 +84,47 @@ export const LineChart: React.FC = () => {
           <SelectContent>
             <SelectItem value="daily">Daily</SelectItem>
             <SelectItem value="weekly">Weekly</SelectItem>
+            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="quarterly">Quarterly</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <div className="p-4">
-        <ResponsiveContainer width="100%" height={200}>
-          <RechartsLineChart
-            data={currentData}
-            margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis
-              dataKey="time"
-              tick={{ fontSize: 10 }}
-              tickFormatter={(value) => {
-                if (viewType === "daily") {
-                  return value.split(":")[0] + "h";
-                }
-                return value;
-              }}
-              interval={viewType === "daily" ? 3 : 1}
-            />
-            <YAxis
-              tick={{ fontSize: 10 }}
-              domain={viewType === "daily" ? [0, 'dataMax + 5'] : [40, 75]}
-              tickCount={5}
-            />
-            <Tooltip
-              formatter={(value) => [`${value} cases`, 'Case Volume']}
-              labelFormatter={(label) => `Time: ${label}`}
-            />
-            <Line
-              type="monotone"
-              dataKey="cases"
-              stroke="#2EBDCC"
-              strokeWidth={2}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
-            />
-          </RechartsLineChart>
-        </ResponsiveContainer>
-      </div>
+      <ResponsiveContainer width="100%" height={200}>
+        <RechartsLineChart
+          data={currentData}
+          margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            dataKey="time"
+            tick={{ fontSize: 10 }}
+            tickFormatter={(value) => {
+              if (viewType === "daily") {
+                return value.split(":")[0] + "h";
+              }
+              return value;
+            }}
+            interval={viewType === "daily" ? 3 : 1}
+          />
+          <YAxis
+            tick={{ fontSize: 10 }}
+            domain={viewType === "daily" ? [0, 'dataMax + 5'] : [40, 75]}
+            tickCount={5}
+          />
+          <Tooltip
+            formatter={(value) => [`${value} cases`, 'Case Volume']}
+            labelFormatter={(label) => `Time: ${label}`}
+          />
+          <Line
+            type="monotone"
+            dataKey="cases"
+            stroke="#2EBDCC"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+            activeDot={{ r: 5 }}
+          />
+        </RechartsLineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
