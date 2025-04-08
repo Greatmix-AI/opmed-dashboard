@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   LineChart as RechartsLineChart,
@@ -133,7 +132,7 @@ export const DualLineChart: React.FC = () => {
     }
   };
   
-  const getYAxisDomain = () => {
+  const getYAxisDomain = (): [number, number | string] => {
     switch (viewType) {
       case "daily":
         return [0, 'dataMax + 5'];
