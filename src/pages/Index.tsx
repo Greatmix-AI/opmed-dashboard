@@ -7,6 +7,8 @@ import { PieChart } from "@/components/charts/PieChart";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { OperatingRoomSchedule } from "@/components/schedule/OperatingRoomSchedule";
+import { DelayFactorsPieChart } from "@/components/charts/DelayFactorsPieChart";
+import { DualLineChart } from "@/components/charts/DualLineChart";
 
 const Index = () => {
   return (
@@ -42,7 +44,7 @@ const Index = () => {
           </button>
         </div>
 
-        {/* Main Content */}
+        {/* First Overview Section */}
         <div className="bg-[#D7E4E8] px-3 py-2 rounded-xl">
           <div className="flex justify-between items-center mb-3">
             <h1 className="text-base font-extrabold text-[#0E3C48]">
@@ -89,7 +91,54 @@ const Index = () => {
           </div>
         </div>
 
-        {/* New Operating Room Schedule Section */}
+        {/* Duplicated Overview Section with Updated Charts */}
+        <div className="bg-[#D7E4E8] px-3 py-2 rounded-xl">
+          <div className="flex justify-between items-center mb-3">
+            <h1 className="text-base font-extrabold text-[#0E3C48]">
+              Overview
+            </h1>
+            <div className="flex bg-[#BFD3D8] p-1 rounded-md">
+              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md bg-white">
+                Patients
+              </button>
+              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md">
+                Therapists
+              </button>
+            </div>
+          </div>
+
+          {/* Metrics Grid */}
+          <div className="flex gap-3 mb-3 max-md:flex-wrap max-sm:flex-col">
+            <MetricCard
+              title="Case Volume"
+              value="3"
+              change={{ value: "+12.5%", type: "increase" }}
+            />
+            <MetricCard
+              title="Case Minutes"
+              value="4,089,012"
+              change={{ value: "+8.3%", type: "increase" }}
+            />
+            <MetricCard
+              title="Staffed-Room Utilization"
+              value="76%"
+              change={{ value: "+3.2%", type: "increase" }}
+            />
+            <MetricCard
+              title="Block Utilization"
+              value="70%"
+              change={{ value: "+4.1%", type: "increase" }}
+            />
+          </div>
+
+          {/* Updated Charts */}
+          <div className="flex gap-3 max-md:flex-col">
+            <DualLineChart />
+            <DelayFactorsPieChart />
+          </div>
+        </div>
+
+        {/* Operating Room Schedule Section */}
         <OperatingRoomSchedule />
       </div>
     </div>
