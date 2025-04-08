@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MetricCard } from "@/components/metrics/MetricCard";
@@ -5,13 +6,14 @@ import { LineChart } from "@/components/charts/LineChart";
 import { PieChart } from "@/components/charts/PieChart";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
+import { OperatingRoomSchedule } from "@/components/schedule/OperatingRoomSchedule";
 
 const Index = () => {
   return (
     <div className="flex w-full h-screen bg-[#F6F8F9]">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col gap-4 p-6">
+      <div className="flex-1 flex flex-col gap-4 p-6 overflow-y-auto">
         {/* Header Section */}
         <div className="flex items-center gap-6 max-sm:flex-col max-sm:items-start">
           <div className="flex items-end gap-[30px]">
@@ -86,6 +88,9 @@ const Index = () => {
             <PieChart />
           </div>
         </div>
+
+        {/* New Operating Room Schedule Section */}
+        <OperatingRoomSchedule />
       </div>
     </div>
   );

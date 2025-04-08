@@ -86,7 +86,7 @@ export const PieChart: React.FC = () => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-2 rounded-md border border-gray-200 shadow-sm">
-          <p className="font-medium">{`${payload[0].name}: ${payload[0].value}%`}</p>
+          <p className="font-medium">{`${payload[0].value}%`}</p>
         </div>
       );
     }
