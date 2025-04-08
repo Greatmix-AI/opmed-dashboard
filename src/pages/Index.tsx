@@ -29,7 +29,7 @@ const Index = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-2 bg-[#BFD3D8] p-1 rounded-md">
+        <div className="inline-flex gap-2 bg-[#BFD3D8] p-1 rounded-md">
           <button className="text-base text-[#0E3C48] cursor-pointer px-3.5 py-1 rounded-md bg-white">
             Executive Summary
           </button>
