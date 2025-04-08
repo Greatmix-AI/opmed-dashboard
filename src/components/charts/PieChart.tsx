@@ -82,6 +82,17 @@ export const PieChart: React.FC = () => {
     setActiveIndex(null);
   };
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 rounded-md border border-gray-200 shadow-sm">
+          <p className="font-medium">{`${payload[0].name}: ${payload[0].value}%`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="flex-1 bg-white rounded-md">
       <div className="text-sm text-[#0E3C48] p-3">Case Volume Distribution</div>
@@ -98,6 +109,7 @@ export const PieChart: React.FC = () => {
                 innerRadius={30}
                 paddingAngle={2}
                 dataKey="percentage"
+                nameKey="label"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
@@ -110,10 +122,7 @@ export const PieChart: React.FC = () => {
                   />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value) => `${value}%`}
-                labelFormatter={(index) => distributions[index as number].label}
-              />
+              <Tooltip content={<CustomTooltip />} />
             </RechartsPieChart>
           </ResponsiveContainer>
         </div>
