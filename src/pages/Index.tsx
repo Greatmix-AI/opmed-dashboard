@@ -7,6 +7,7 @@ import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { DelayFactorsPieChart } from "@/components/charts/DelayFactorsPieChart";
 import { DualLineChart } from "@/components/charts/DualLineChart";
+import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
   return (
@@ -81,6 +82,9 @@ const Index = () => {
               change={{ value: "+4.1%", type: "increase" }}
             />
           </div>
+          
+          {/* Divider after metrics */}
+          <Separator className="my-3 bg-[#BFD3D8]" />
 
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
@@ -120,6 +124,9 @@ const Index = () => {
               change={{ value: "-2.3 mins", type: "decrease" }}
             />
           </div>
+          
+          {/* Divider after metrics */}
+          <Separator className="my-3 bg-[#BFD3D8]" />
 
           {/* Charts - Keeping the same charts */}
           <div className="flex gap-3 max-md:flex-col">
