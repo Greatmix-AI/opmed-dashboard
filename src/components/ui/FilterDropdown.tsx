@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Check, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,17 +77,10 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
             {selected.length === 0 
               ? label 
               : selected.length === actualOptions.length 
-                ? "Select all" 
+                ? "All specialties" 
                 : `${selected.length} selected`}
           </span>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M10.5582 12.7604L10 12.1818L9.44176 12.7604C9.75007 13.0799 10.2499 13.0799 10.5582 12.7604Z"
-              fill="#676879"
-            />
-          </svg>
+          <ChevronDown className="h-4 w-4 opacity-70" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[180px] bg-white border border-[#E6F3F4]">
@@ -95,7 +89,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
           onCheckedChange={handleSelectAll}
           className="font-medium"
         >
-          Select all
+          {selected.length === actualOptions.length ? "Deselect all" : "Select all"}
         </DropdownMenuCheckboxItem>
         <DropdownMenuSeparator />
         {actualOptions.map((option) => (

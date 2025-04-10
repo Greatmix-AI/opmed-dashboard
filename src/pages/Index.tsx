@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -69,6 +70,9 @@ const Index = () => {
   const handleSpecialtyChange = (selected: string[]) => {
     setSelectedSpecialties(selected);
     console.log("Selected specialties changed:", selected);
+    
+    // Update the metrics data based on both specialty and time range
+    generateMetricsForSpecialtiesAndTimeRange(selected, timeRange);
   };
 
   // Handler for time range changes
@@ -76,12 +80,15 @@ const Index = () => {
     setTimeRange(value);
     console.log("Time range changed:", value);
     
-    // Generate new data based on the time range
-    generateMetricsForTimeRange(value);
+    // Generate new data based on the time range and currently selected specialties
+    generateMetricsForSpecialtiesAndTimeRange(selectedSpecialties, value);
   };
 
-  // Function to generate metrics based on time range with maximum 15% deviation
-  const generateMetricsForTimeRange = (range: string) => {
+  // Function to generate metrics based on selected specialties and time range
+  const generateMetricsForSpecialtiesAndTimeRange = (
+    selectedSpecialtiesList: string[], 
+    selectedTimeRange: string
+  ) => {
     // Base values (reference values)
     const baseMetrics = {
       caseVolume: 3,
@@ -92,49 +99,98 @@ const Index = () => {
       turnaroundTime: 35
     };
     
-    // Generate variation factors based on time range
-    let variationSeed: number;
-    
-    switch(range) {
-      case "Last 30 Days":
-        variationSeed = 0.05; // 5% variation
-        break;
-      case "Last 3 Months":
-        variationSeed = 0.08; // 8% variation
-        break;
-      case "Last 6 Months":
-        variationSeed = 0.1; // 10% variation
-        break;
-      case "Year to Date":
-        variationSeed = 0.12; // 12% variation
-        break;
-      case "Custom Range":
-        variationSeed = 0.07; // 7% variation for custom range
-        break;
-      default: // "Last 12 Months" is our base case
-        variationSeed = 0; // no variation
+    // No specialties selected - show zeros
+    if (selectedSpecialtiesList.length === 0) {
+      const emptyMetrics = {
+        caseVolume: 0,
+        caseMinutes: 0,
+        staffedRoomUtilization: 0,
+        blockUtilization: 0,
+        firstCaseOnTime: 0,
+        turnaroundTime: 0
+      };
+      
+      setMetricsData(emptyMetrics);
+      setMetricChanges({
+        caseVolume: 0,
+        caseMinutes: 0,
+        staffedRoomUtilization: 0,
+        blockUtilization: 0,
+        firstCaseOnTime: 0,
+        turnaroundTime: 0
+      });
+      return;
     }
     
-    // Apply random variations within the 15% constraint
-    const randomVariation = (base: number, seed: number): number => {
-      const maxDeviation = base * 0.15; // 15% maximum deviation
-      const deviation = maxDeviation * seed * (Math.random() * 2 - 1); // Random deviation between -seed% and +seed%
-      return Math.round((base + deviation) * 10) / 10; // Round to 1 decimal place
+    // Generate variation factors based on time range
+    let timeVariationSeed: number;
+    
+    switch(selectedTimeRange) {
+      case "Last 30 Days":
+        timeVariationSeed = 0.10; // 10% variation
+        break;
+      case "Last 3 Months":
+        timeVariationSeed = 0.12; // 12% variation
+        break;
+      case "Last 6 Months":
+        timeVariationSeed = 0.15; // 15% variation
+        break;
+      case "Year to Date":
+        timeVariationSeed = 0.18; // 18% variation
+        break;
+      case "Custom Range":
+        timeVariationSeed = 0.14; // 14% variation for custom range
+        break;
+      default: // "Last 12 Months" is our base case
+        timeVariationSeed = 0.05; // 5% variation
+    }
+    
+    // Apply specialty factor - more specialties means more cases/minutes
+    // Calculate specialty factor based on selected specialties
+    const specialtyFactor = selectedSpecialtiesList.length / specialties.length;
+    
+    // Apply specialty-specific variations (each specialty contributes differently)
+    const getSpecialtyVariation = (specialtyName: string): number => {
+      // Create a deterministic but different factor for each specialty
+      const specialtyHash = specialtyName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100;
+      return 0.85 + ((specialtyHash / 100) * 0.3); // Factor between 0.85 and 1.15 (±15%)
     };
     
+    // Calculate average specialty variation factor from selected specialties
+    const averageSpecialtyVariation = selectedSpecialtiesList.length > 0
+      ? selectedSpecialtiesList.reduce((sum, specialty) => sum + getSpecialtyVariation(specialty), 0) / selectedSpecialtiesList.length
+      : 1;
+    
+    // Apply random variations within the constraint - between 5% and 20% based on time range and specialties
+    const applyVariation = (base: number, timeSeed: number, specialtyFactor: number, specialtyVariation: number): number => {
+      // Combine time and specialty factors for overall variation
+      const combinedVariationFactor = timeSeed * specialtyFactor * specialtyVariation;
+      
+      // Ensure variation is at least 5% but no more than 20%
+      const boundedVariation = Math.max(0.05, Math.min(0.20, combinedVariationFactor));
+      
+      // Apply random variation within bounded range
+      const randomDirection = Math.random() > 0.5 ? 1 : -1;
+      const actualVariation = 1 + (boundedVariation * randomDirection);
+      
+      return Math.round((base * actualVariation) * 10) / 10; // Round to 1 decimal place
+    };
+    
+    // Apply variations to all metrics
     const newMetrics = {
-      caseVolume: randomVariation(baseMetrics.caseVolume, variationSeed),
-      caseMinutes: Math.round(randomVariation(baseMetrics.caseMinutes, variationSeed)),
-      staffedRoomUtilization: randomVariation(baseMetrics.staffedRoomUtilization, variationSeed),
-      blockUtilization: randomVariation(baseMetrics.blockUtilization, variationSeed),
-      firstCaseOnTime: randomVariation(baseMetrics.firstCaseOnTime, variationSeed),
-      turnaroundTime: randomVariation(baseMetrics.turnaroundTime, variationSeed)
+      caseVolume: applyVariation(baseMetrics.caseVolume * specialtyFactor, timeVariationSeed, specialtyFactor, averageSpecialtyVariation),
+      caseMinutes: Math.round(applyVariation(baseMetrics.caseMinutes * specialtyFactor, timeVariationSeed, specialtyFactor, averageSpecialtyVariation)),
+      staffedRoomUtilization: Math.min(100, applyVariation(baseMetrics.staffedRoomUtilization, timeVariationSeed, 1, averageSpecialtyVariation)),
+      blockUtilization: Math.min(100, applyVariation(baseMetrics.blockUtilization, timeVariationSeed, 1, averageSpecialtyVariation)),
+      firstCaseOnTime: Math.min(100, applyVariation(baseMetrics.firstCaseOnTime, timeVariationSeed, 1, averageSpecialtyVariation)),
+      turnaroundTime: applyVariation(baseMetrics.turnaroundTime, timeVariationSeed, 1, averageSpecialtyVariation)
     };
     
-    // Generate random changes with consistent direction (increase/decrease) from previous period
-    const generateChange = (currentValue: number, baseValue: number): number => {
-      const changeDirection = currentValue > baseValue ? 1 : -1;
-      return changeDirection * (Math.random() * 4 + 2); // Random change between 2-6%
+    // Generate changes compared to previous period with consistent direction
+    const generateChange = (newValue: number, baseValue: number): number => {
+      const changeDirection = newValue > baseValue ? 1 : -1;
+      // Random change between 2-6% in the appropriate direction
+      return changeDirection * (Math.random() * 4 + 2);
     };
     
     const newChanges = {
@@ -152,7 +208,7 @@ const Index = () => {
   
   // Generate initial metrics data on mount
   useEffect(() => {
-    generateMetricsForTimeRange(timeRange);
+    generateMetricsForSpecialtiesAndTimeRange(selectedSpecialties, timeRange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -248,7 +304,7 @@ const Index = () => {
             <div className="flex-1 bg-white rounded-md">
               <LineChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
             </div>
-            <PieChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
+            <PieChart selectedSpecialties={selectedSpecialties} />
           </div>
         </div>
 
@@ -282,7 +338,7 @@ const Index = () => {
             <div className="flex-1 bg-white rounded-md">
               <DualLineChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
             </div>
-            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
+            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} />
           </div>
         </div>
       </div>
