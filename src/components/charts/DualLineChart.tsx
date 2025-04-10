@@ -20,6 +20,7 @@ import {
 
 interface DualLineChartProps {
   selectedSpecialties: string[];
+  timeRange?: string; // Make the timeRange prop optional for backward compatibility
 }
 
 // Sample data for 24-hour case volume with two data series
@@ -119,9 +120,40 @@ const weeklyData = generateWeeklyData();
 const monthlyData = generateMonthlyData();
 const quarterlyData = generateQuarterlyData();
 
-export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialties }) => {
+export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialties, timeRange = "Last 12 Months" }) => {
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
   const [filteredData, setFilteredData] = useState(hourlyData);
+  const [timeBasedData, setTimeBasedData] = useState(hourlyData);
+  
+  // Effect to adjust data based on selected time range
+  useEffect(() => {
+    // Apply a consistent random seed based on timeRange to ensure stable but different values
+    const getRandomFactor = () => {
+      // Generate a pseudo-random factor based on the time range string
+      const seed = timeRange.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      // Ensure variation is within 15% of the original data
+      return 0.85 + (((seed % 30) / 30) * 0.3); // Factor between 0.85 and 1.15 (±15%)
+    };
+    
+    const getRandomEfficiencyFactor = () => {
+      // Create a different but consistent factor for efficiency
+      const seed = (timeRange.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * 1.5) % 100;
+      return 0.85 + (((seed % 30) / 30) * 0.3); // Factor between 0.85 and 1.15 (±15%)
+    };
+    
+    // Apply the random factors to the data based on time range
+    const caseFactor = getRandomFactor();
+    const efficiencyFactor = getRandomEfficiencyFactor();
+    
+    const currentData = getChartData();
+    const adjustedData = currentData.map(item => ({
+      ...item,
+      cases: Math.round(item.cases * caseFactor),
+      efficiency: Math.min(100, Math.round(item.efficiency * efficiencyFactor)) // Cap at 100% efficiency
+    }));
+    
+    setTimeBasedData(adjustedData);
+  }, [timeRange]);
   
   // Effect to filter data when selected specialties change
   useEffect(() => {
@@ -135,20 +167,18 @@ export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialtie
     }
     
     // Filter data based on selected specialties
-    const currentData = getChartData();
-    
     // Apply a multiplier based on selected specialties to simulate filtering
     // More selected specialties = more data points with higher values
     const multiplier = specialtiesArray.length / 8; // 8 is the total number of specialties
     
-    const newData = currentData.map(item => ({
+    const newData = timeBasedData.map(item => ({
       ...item,
       cases: Math.round(item.cases * multiplier),
       efficiency: Math.min(100, Math.round(item.efficiency * (0.7 + 0.3 * multiplier))) // Efficiency is affected less
     }));
     
     setFilteredData(newData);
-  }, [selectedSpecialties, viewType]);
+  }, [selectedSpecialties, viewType, timeBasedData]);
   
   const getChartData = () => {
     switch (viewType) {

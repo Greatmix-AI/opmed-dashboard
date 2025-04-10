@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MetricCard } from "@/components/metrics/MetricCard";
 import { LineChart } from "@/components/charts/LineChart";
@@ -9,6 +9,7 @@ import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { DelayFactorsPieChart } from "@/components/charts/DelayFactorsPieChart";
 import { DualLineChart } from "@/components/charts/DualLineChart";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
 import { 
   Select, 
   SelectContent, 
@@ -16,6 +17,15 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+
+interface MetricData {
+  efficiencyRate: number;
+  avgTreatmentTime: number;
+  resourceUtilization: number;
+  costPerTreatment: number;
+  resourceAllocationRate: number;
+  processingTime: number;
+}
 
 const EfficiencyMetrics = () => {
   // Define the specialties array
@@ -36,6 +46,26 @@ const EfficiencyMetrics = () => {
   // Initialize time range state
   const [timeRange, setTimeRange] = useState<string>("Last 12 Months");
   
+  // Initialize state for metrics data
+  const [metricsData, setMetricsData] = useState<MetricData>({
+    efficiencyRate: 82,
+    avgTreatmentTime: 45,
+    resourceUtilization: 79,
+    costPerTreatment: 125,
+    resourceAllocationRate: 85,
+    processingTime: 28
+  });
+
+  // Changes from previous period (%)
+  const [metricChanges, setMetricChanges] = useState({
+    efficiencyRate: 5.3,
+    avgTreatmentTime: -8.1,
+    resourceUtilization: 2.8,
+    costPerTreatment: -3.7,
+    resourceAllocationRate: 3.5,
+    processingTime: -4.2
+  });
+  
   // Handler for specialty selection changes
   const handleSpecialtyChange = (selected: string[]) => {
     setSelectedSpecialties(selected);
@@ -46,7 +76,86 @@ const EfficiencyMetrics = () => {
   const handleTimeRangeChange = (value: string) => {
     setTimeRange(value);
     console.log("Time range changed:", value);
+    
+    // Generate new data based on the time range
+    generateMetricsForTimeRange(value);
   };
+
+  // Function to generate metrics based on time range with maximum 15% deviation
+  const generateMetricsForTimeRange = (range: string) => {
+    // Base values (reference values)
+    const baseMetrics = {
+      efficiencyRate: 82,
+      avgTreatmentTime: 45,
+      resourceUtilization: 79,
+      costPerTreatment: 125,
+      resourceAllocationRate: 85,
+      processingTime: 28
+    };
+    
+    // Generate variation factors based on time range
+    let variationSeed: number;
+    
+    switch(range) {
+      case "Last 30 Days":
+        variationSeed = 0.05; // 5% variation
+        break;
+      case "Last 3 Months":
+        variationSeed = 0.08; // 8% variation
+        break;
+      case "Last 6 Months":
+        variationSeed = 0.1; // 10% variation
+        break;
+      case "Year to Date":
+        variationSeed = 0.12; // 12% variation
+        break;
+      case "Custom Range":
+        variationSeed = 0.07; // 7% variation for custom range
+        break;
+      default: // "Last 12 Months" is our base case
+        variationSeed = 0; // no variation
+    }
+    
+    // Apply random variations within the 15% constraint
+    const randomVariation = (base: number, seed: number): number => {
+      const maxDeviation = base * 0.15; // 15% maximum deviation
+      const deviation = maxDeviation * seed * (Math.random() * 2 - 1); // Random deviation between -seed% and +seed%
+      return Math.round((base + deviation) * 10) / 10; // Round to 1 decimal place
+    };
+    
+    const newMetrics = {
+      efficiencyRate: randomVariation(baseMetrics.efficiencyRate, variationSeed),
+      avgTreatmentTime: randomVariation(baseMetrics.avgTreatmentTime, variationSeed),
+      resourceUtilization: randomVariation(baseMetrics.resourceUtilization, variationSeed),
+      costPerTreatment: randomVariation(baseMetrics.costPerTreatment, variationSeed),
+      resourceAllocationRate: randomVariation(baseMetrics.resourceAllocationRate, variationSeed),
+      processingTime: randomVariation(baseMetrics.processingTime, variationSeed)
+    };
+    
+    // Generate random changes with consistent direction (increase/decrease) from previous period
+    const generateChange = (currentValue: number, baseValue: number): number => {
+      const changeDirection = currentValue > baseValue ? 1 : -1;
+      return changeDirection * (Math.random() * 4 + 2); // Random change between 2-6%
+    };
+    
+    const newChanges = {
+      efficiencyRate: generateChange(newMetrics.efficiencyRate, baseMetrics.efficiencyRate),
+      avgTreatmentTime: generateChange(newMetrics.avgTreatmentTime, baseMetrics.avgTreatmentTime) * -1, // Inverse for treatment time (lower is better)
+      resourceUtilization: generateChange(newMetrics.resourceUtilization, baseMetrics.resourceUtilization),
+      costPerTreatment: generateChange(newMetrics.costPerTreatment, baseMetrics.costPerTreatment) * -1, // Inverse for cost (lower is better)
+      resourceAllocationRate: generateChange(newMetrics.resourceAllocationRate, baseMetrics.resourceAllocationRate),
+      processingTime: generateChange(newMetrics.processingTime, baseMetrics.processingTime) * -1 // Inverse for processing time (lower is better)
+    };
+    
+    setMetricsData(newMetrics);
+    setMetricChanges(newChanges);
+  };
+  
+  // Generate initial metrics data on mount
+  useEffect(() => {
+    generateMetricsForTimeRange(timeRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex w-full h-screen bg-[#F6F8F9]">
@@ -86,9 +195,9 @@ const EfficiencyMetrics = () => {
 
         {/* Navigation Tabs */}
         <div className="inline-flex gap-2 bg-[#BFD3D8] p-1 rounded-md w-fit">
-          <a href="/" className="text-base text-[#0E3C48] cursor-pointer px-3.5 py-1 rounded-md">
+          <Link to="/" className="text-base text-[#0E3C48] cursor-pointer px-3.5 py-1 rounded-md">
             Executive Summary
-          </a>
+          </Link>
           <button className="text-base text-[#0E3C48] cursor-pointer px-3.5 py-1 rounded-md bg-white">
             Efficiency Metrics
           </button>
@@ -112,23 +221,23 @@ const EfficiencyMetrics = () => {
           <div className="flex gap-3 mb-3 max-md:flex-wrap max-sm:flex-col">
             <MetricCard
               title="Efficiency Rate"
-              value="82%"
-              change={{ value: "+5.3%", type: "increase" }}
+              value={`${metricsData.efficiencyRate}%`}
+              change={{ value: `${metricChanges.efficiencyRate.toFixed(1)}%`, type: metricChanges.efficiencyRate > 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Average Treatment Time"
-              value="45 mins"
-              change={{ value: "-8.1%", type: "increase" }}
+              value={`${metricsData.avgTreatmentTime} mins`}
+              change={{ value: `${Math.abs(metricChanges.avgTreatmentTime).toFixed(1)}%`, type: metricChanges.avgTreatmentTime < 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Resource Utilization"
-              value="79%"
-              change={{ value: "+2.8%", type: "increase" }}
+              value={`${metricsData.resourceUtilization}%`}
+              change={{ value: `${metricChanges.resourceUtilization.toFixed(1)}%`, type: metricChanges.resourceUtilization > 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Cost per Treatment"
-              value="$125"
-              change={{ value: "-3.7%", type: "increase" }}
+              value={`$${metricsData.costPerTreatment}`}
+              change={{ value: `${Math.abs(metricChanges.costPerTreatment).toFixed(1)}%`, type: metricChanges.costPerTreatment < 0 ? "increase" : "decrease" }}
             />
           </div>
           
@@ -138,9 +247,9 @@ const EfficiencyMetrics = () => {
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
-              <LineChart selectedSpecialties={selectedSpecialties} />
+              <LineChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
             </div>
-            <PieChart selectedSpecialties={selectedSpecialties} />
+            <PieChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
           </div>
         </div>
 
@@ -156,13 +265,13 @@ const EfficiencyMetrics = () => {
           <div className="flex gap-3 mb-3 max-md:flex-wrap max-sm:flex-col">
             <MetricCard
               title="Resource Allocation Rate"
-              value="85%"
-              change={{ value: "+3.5%", type: "increase" }}
+              value={`${metricsData.resourceAllocationRate}%`}
+              change={{ value: `${metricChanges.resourceAllocationRate.toFixed(1)}%`, type: metricChanges.resourceAllocationRate > 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Processing Time"
-              value="28 mins"
-              change={{ value: "-4.2 mins", type: "decrease" }}
+              value={`${metricsData.processingTime} mins`}
+              change={{ value: `${Math.abs(metricChanges.processingTime).toFixed(1)} mins`, type: metricChanges.processingTime < 0 ? "decrease" : "increase" }}
             />
           </div>
           
@@ -172,9 +281,9 @@ const EfficiencyMetrics = () => {
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
-              <DualLineChart selectedSpecialties={selectedSpecialties} />
+              <DualLineChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
             </div>
-            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} />
+            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
           </div>
         </div>
       </div>

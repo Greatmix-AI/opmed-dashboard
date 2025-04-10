@@ -19,6 +19,7 @@ import {
 
 interface LineChartProps {
   selectedSpecialties: string[];
+  timeRange?: string; // Make the timeRange prop optional for backward compatibility
 }
 
 // Sample data for 24-hour case volume
@@ -104,11 +105,34 @@ const weeklyData = generateWeeklyData();
 const monthlyData = generateMonthlyData();
 const quarterlyData = generateQuarterlyData();
 
-export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties }) => {
+export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties, timeRange = "Last 12 Months" }) => {
   const [viewType, setViewType] = useState<"daily" | "weekly" | "monthly" | "quarterly">("daily");
   const [filteredData, setFilteredData] = useState(hourlyData);
+  const [timeBasedData, setTimeBasedData] = useState(hourlyData);
   
-  // Effect to filter data when selected specialties change
+  // Effect to adjust data based on selected time range
+  useEffect(() => {
+    // Apply a consistent random seed based on timeRange to ensure stable but different values
+    const getRandomFactor = () => {
+      // Generate a pseudo-random factor based on the time range string
+      const seed = timeRange.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      // Ensure variation is within 15% of the original data
+      return 0.85 + (((seed % 30) / 30) * 0.3); // Factor between 0.85 and 1.15 (±15%)
+    };
+    
+    // Apply the random factor to the data based on time range
+    const factor = getRandomFactor();
+    
+    const currentData = getChartData();
+    const adjustedData = currentData.map(item => ({
+      ...item,
+      cases: Math.round(item.cases * factor)
+    }));
+    
+    setTimeBasedData(adjustedData);
+  }, [timeRange]);
+  
+  // Effect to filter data when selected specialties or viewType change
   useEffect(() => {
     // Ensure selectedSpecialties is defined and has a length property
     const specialtiesArray = selectedSpecialties || [];
@@ -122,19 +146,18 @@ export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties }) => 
     // Filter data based on selected specialties
     // This is a simplified example - in a real-world scenario,
     // you would have data specific to each specialty
-    const currentData = getChartData();
     
     // Apply a multiplier based on selected specialties to simulate filtering
     // More selected specialties = more data points with higher values
     const multiplier = specialtiesArray.length / 8; // 8 is the total number of specialties
     
-    const newData = currentData.map(item => ({
+    const newData = timeBasedData.map(item => ({
       ...item,
       cases: Math.round(item.cases * multiplier)
     }));
     
     setFilteredData(newData);
-  }, [selectedSpecialties, viewType]);
+  }, [selectedSpecialties, viewType, timeBasedData]);
   
   const getChartData = () => {
     switch (viewType) {

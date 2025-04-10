@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MetricCard } from "@/components/metrics/MetricCard";
@@ -16,6 +16,15 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+
+interface MetricData {
+  caseVolume: number;
+  caseMinutes: number;
+  staffedRoomUtilization: number;
+  blockUtilization: number;
+  firstCaseOnTime: number;
+  turnaroundTime: number;
+}
 
 const Index = () => {
   // Define the specialties array
@@ -36,6 +45,26 @@ const Index = () => {
   // Initialize time range state
   const [timeRange, setTimeRange] = useState<string>("Last 12 Months");
   
+  // Initialize state for metrics data
+  const [metricsData, setMetricsData] = useState<MetricData>({
+    caseVolume: 3,
+    caseMinutes: 4089012,
+    staffedRoomUtilization: 76,
+    blockUtilization: 70,
+    firstCaseOnTime: 29,
+    turnaroundTime: 35
+  });
+
+  // Changes from previous period (%)
+  const [metricChanges, setMetricChanges] = useState({
+    caseVolume: 12.5,
+    caseMinutes: 8.3,
+    staffedRoomUtilization: 3.2,
+    blockUtilization: 4.1,
+    firstCaseOnTime: -4.5,
+    turnaroundTime: -2.3
+  });
+  
   // Handler for specialty selection changes
   const handleSpecialtyChange = (selected: string[]) => {
     setSelectedSpecialties(selected);
@@ -46,7 +75,86 @@ const Index = () => {
   const handleTimeRangeChange = (value: string) => {
     setTimeRange(value);
     console.log("Time range changed:", value);
+    
+    // Generate new data based on the time range
+    generateMetricsForTimeRange(value);
   };
+
+  // Function to generate metrics based on time range with maximum 15% deviation
+  const generateMetricsForTimeRange = (range: string) => {
+    // Base values (reference values)
+    const baseMetrics = {
+      caseVolume: 3,
+      caseMinutes: 4089012,
+      staffedRoomUtilization: 76,
+      blockUtilization: 70,
+      firstCaseOnTime: 29,
+      turnaroundTime: 35
+    };
+    
+    // Generate variation factors based on time range
+    let variationSeed: number;
+    
+    switch(range) {
+      case "Last 30 Days":
+        variationSeed = 0.05; // 5% variation
+        break;
+      case "Last 3 Months":
+        variationSeed = 0.08; // 8% variation
+        break;
+      case "Last 6 Months":
+        variationSeed = 0.1; // 10% variation
+        break;
+      case "Year to Date":
+        variationSeed = 0.12; // 12% variation
+        break;
+      case "Custom Range":
+        variationSeed = 0.07; // 7% variation for custom range
+        break;
+      default: // "Last 12 Months" is our base case
+        variationSeed = 0; // no variation
+    }
+    
+    // Apply random variations within the 15% constraint
+    const randomVariation = (base: number, seed: number): number => {
+      const maxDeviation = base * 0.15; // 15% maximum deviation
+      const deviation = maxDeviation * seed * (Math.random() * 2 - 1); // Random deviation between -seed% and +seed%
+      return Math.round((base + deviation) * 10) / 10; // Round to 1 decimal place
+    };
+    
+    const newMetrics = {
+      caseVolume: randomVariation(baseMetrics.caseVolume, variationSeed),
+      caseMinutes: Math.round(randomVariation(baseMetrics.caseMinutes, variationSeed)),
+      staffedRoomUtilization: randomVariation(baseMetrics.staffedRoomUtilization, variationSeed),
+      blockUtilization: randomVariation(baseMetrics.blockUtilization, variationSeed),
+      firstCaseOnTime: randomVariation(baseMetrics.firstCaseOnTime, variationSeed),
+      turnaroundTime: randomVariation(baseMetrics.turnaroundTime, variationSeed)
+    };
+    
+    // Generate random changes with consistent direction (increase/decrease) from previous period
+    const generateChange = (currentValue: number, baseValue: number): number => {
+      const changeDirection = currentValue > baseValue ? 1 : -1;
+      return changeDirection * (Math.random() * 4 + 2); // Random change between 2-6%
+    };
+    
+    const newChanges = {
+      caseVolume: generateChange(newMetrics.caseVolume, baseMetrics.caseVolume),
+      caseMinutes: generateChange(newMetrics.caseMinutes, baseMetrics.caseMinutes),
+      staffedRoomUtilization: generateChange(newMetrics.staffedRoomUtilization, baseMetrics.staffedRoomUtilization),
+      blockUtilization: generateChange(newMetrics.blockUtilization, baseMetrics.blockUtilization),
+      firstCaseOnTime: generateChange(newMetrics.firstCaseOnTime, baseMetrics.firstCaseOnTime),
+      turnaroundTime: generateChange(newMetrics.turnaroundTime, baseMetrics.turnaroundTime)
+    };
+    
+    setMetricsData(newMetrics);
+    setMetricChanges(newChanges);
+  };
+  
+  // Generate initial metrics data on mount
+  useEffect(() => {
+    generateMetricsForTimeRange(timeRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex w-full h-screen bg-[#F6F8F9]">
@@ -112,23 +220,23 @@ const Index = () => {
           <div className="flex gap-3 mb-3 max-md:flex-wrap max-sm:flex-col">
             <MetricCard
               title="Case Volume"
-              value="3"
-              change={{ value: "+12.5%", type: "increase" }}
+              value={`${metricsData.caseVolume}`}
+              change={{ value: `${metricChanges.caseVolume.toFixed(1)}%`, type: metricChanges.caseVolume > 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Case Minutes"
-              value="4,089,012"
-              change={{ value: "+8.3%", type: "increase" }}
+              value={`${metricsData.caseMinutes.toLocaleString()}`}
+              change={{ value: `${metricChanges.caseMinutes.toFixed(1)}%`, type: metricChanges.caseMinutes > 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Staffed-Room Utilization"
-              value="76%"
-              change={{ value: "+3.2%", type: "increase" }}
+              value={`${metricsData.staffedRoomUtilization}%`}
+              change={{ value: `${metricChanges.staffedRoomUtilization.toFixed(1)}%`, type: metricChanges.staffedRoomUtilization > 0 ? "increase" : "decrease" }}
             />
             <MetricCard
               title="Block Utilization"
-              value="70%"
-              change={{ value: "+4.1%", type: "increase" }}
+              value={`${metricsData.blockUtilization}%`}
+              change={{ value: `${metricChanges.blockUtilization.toFixed(1)}%`, type: metricChanges.blockUtilization > 0 ? "increase" : "decrease" }}
             />
           </div>
           
@@ -138,9 +246,9 @@ const Index = () => {
           {/* Charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
-              <LineChart selectedSpecialties={selectedSpecialties} />
+              <LineChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
             </div>
-            <PieChart selectedSpecialties={selectedSpecialties} />
+            <PieChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
           </div>
         </div>
 
@@ -156,13 +264,13 @@ const Index = () => {
           <div className="flex gap-3 mb-3 max-md:flex-wrap max-sm:flex-col">
             <MetricCard
               title="First Case On-Time"
-              value="29%"
-              change={{ value: "-4.5%", type: "decrease" }}
+              value={`${metricsData.firstCaseOnTime}%`}
+              change={{ value: `${Math.abs(metricChanges.firstCaseOnTime).toFixed(1)}%`, type: metricChanges.firstCaseOnTime < 0 ? "decrease" : "increase" }}
             />
             <MetricCard
               title="Turnaround Time"
-              value="35 mins"
-              change={{ value: "-2.3 mins", type: "decrease" }}
+              value={`${metricsData.turnaroundTime} mins`}
+              change={{ value: `${Math.abs(metricChanges.turnaroundTime).toFixed(1)} mins`, type: metricChanges.turnaroundTime < 0 ? "decrease" : "increase" }}
             />
           </div>
           
@@ -172,9 +280,9 @@ const Index = () => {
           {/* Charts - Keeping the same charts */}
           <div className="flex gap-3 max-md:flex-col">
             <div className="flex-1 bg-white rounded-md">
-              <DualLineChart selectedSpecialties={selectedSpecialties} />
+              <DualLineChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
             </div>
-            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} />
+            <DelayFactorsPieChart selectedSpecialties={selectedSpecialties} timeRange={timeRange} />
           </div>
         </div>
       </div>
