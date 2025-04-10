@@ -9,6 +9,13 @@ import { FilterDropdown } from "@/components/ui/FilterDropdown";
 import { DelayFactorsPieChart } from "@/components/charts/DelayFactorsPieChart";
 import { DualLineChart } from "@/components/charts/DualLineChart";
 import { Separator } from "@/components/ui/separator";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 const EfficiencyMetrics = () => {
   // Define the specialties array
@@ -26,10 +33,19 @@ const EfficiencyMetrics = () => {
   // Initialize the state for selected specialties with all specialties
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([...specialties]);
   
+  // Initialize time range state
+  const [timeRange, setTimeRange] = useState<string>("Last 12 Months");
+  
   // Handler for specialty selection changes
   const handleSpecialtyChange = (selected: string[]) => {
     setSelectedSpecialties(selected);
     console.log("Selected specialties changed:", selected);
+  };
+
+  // Handler for time range changes
+  const handleTimeRangeChange = (value: string) => {
+    setTimeRange(value);
+    console.log("Time range changed:", value);
   };
 
   return (
@@ -39,11 +55,25 @@ const EfficiencyMetrics = () => {
       <div className="flex-1 flex flex-col gap-4 p-6 overflow-y-auto">
         {/* Header Section */}
         <div className="flex items-center gap-6 max-sm:flex-col max-sm:items-start">
-          <div className="flex items-end gap-[30px]">
-            <DateRangePicker />
+          <div className="flex items-end gap-[30px] w-full">
+            <div className="w-64">
+              <Select value={timeRange} onValueChange={handleTimeRangeChange}>
+                <SelectTrigger className="w-full border text-xs font-semibold text-[#708090] bg-white px-2 py-1.5 rounded-md border-solid border-[#E6F3F4]">
+                  <SelectValue placeholder="Select time range" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="Last 30 Days">Last 30 Days</SelectItem>
+                  <SelectItem value="Last 3 Months">Last 3 Months</SelectItem>
+                  <SelectItem value="Last 6 Months">Last 6 Months</SelectItem>
+                  <SelectItem value="Last 12 Months">Last 12 Months</SelectItem>
+                  <SelectItem value="Year to Date">Year to Date</SelectItem>
+                  <SelectItem value="Custom Range">Custom Range</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {timeRange === "Custom Range" && <DateRangePicker />}
           </div>
           <div className="flex gap-3 max-sm:flex-col max-sm:w-full">
-            <FilterDropdown label="Last 12 months" />
             <FilterDropdown 
               label="Select specialities" 
               options={specialties}
