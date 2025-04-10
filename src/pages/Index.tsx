@@ -76,14 +76,6 @@ const Index = () => {
             <h1 className="text-base font-extrabold text-[#0E3C48]">
               Overview
             </h1>
-            <div className="flex bg-[#BFD3D8] p-1 rounded-md">
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md bg-white">
-                Patients
-              </button>
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md">
-                Therapists
-              </button>
-            </div>
           </div>
 
           {/* Metrics Grid */}
@@ -128,14 +120,6 @@ const Index = () => {
             <h1 className="text-base font-extrabold text-[#0E3C48]">
               Timeliness
             </h1>
-            <div className="flex bg-[#BFD3D8] p-1 rounded-md">
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md bg-white">
-                Patients
-              </button>
-              <button className="text-sm text-[#0E3C48] cursor-pointer px-3 py-0.5 rounded-md">
-                Therapists
-              </button>
-            </div>
           </div>
 
           {/* Updated KPIs - Only 2 metrics now */}
