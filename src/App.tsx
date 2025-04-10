@@ -11,7 +11,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <BrowserRouter>
+  <BrowserRouter basename="/opmed-dashboard">
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
