@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   LineChart as RechartsLineChart,
@@ -23,44 +22,44 @@ interface DualLineChartProps {
   timeRange?: string; // Make the timeRange prop optional for backward compatibility
 }
 
-// Sample data for 24-hour case volume with two data series
+// Sample data for 24-hour case volume with updated case values
 const hourlyData = [
-  { time: "00:00", cases: 5, efficiency: 65 },
-  { time: "01:00", cases: 3, efficiency: 70 },
-  { time: "02:00", cases: 2, efficiency: 75 },
-  { time: "03:00", cases: 1, efficiency: 72 },
-  { time: "04:00", cases: 1, efficiency: 68 },
-  { time: "05:00", cases: 2, efficiency: 70 },
-  { time: "06:00", cases: 4, efficiency: 75 },
-  { time: "07:00", cases: 8, efficiency: 78 },
-  { time: "08:00", cases: 15, efficiency: 80 },
-  { time: "09:00", cases: 22, efficiency: 85 },
-  { time: "10:00", cases: 25, efficiency: 90 },
-  { time: "11:00", cases: 27, efficiency: 92 },
-  { time: "12:00", cases: 24, efficiency: 88 },
-  { time: "13:00", cases: 21, efficiency: 82 },
-  { time: "14:00", cases: 18, efficiency: 80 },
-  { time: "15:00", cases: 15, efficiency: 78 },
-  { time: "16:00", cases: 13, efficiency: 75 },
-  { time: "17:00", cases: 11, efficiency: 72 },
-  { time: "18:00", cases: 9, efficiency: 70 },
-  { time: "19:00", cases: 7, efficiency: 68 },
-  { time: "20:00", cases: 6, efficiency: 65 },
-  { time: "21:00", cases: 5, efficiency: 62 },
-  { time: "22:00", cases: 4, efficiency: 60 },
-  { time: "23:00", cases: 3, efficiency: 58 },
+  { time: "00:00", cases: 76, efficiency: 65 },
+  { time: "01:00", cases: 75, efficiency: 70 },
+  { time: "02:00", cases: 75, efficiency: 75 },
+  { time: "03:00", cases: 76, efficiency: 72 },
+  { time: "04:00", cases: 77, efficiency: 68 },
+  { time: "05:00", cases: 78, efficiency: 70 },
+  { time: "06:00", cases: 80, efficiency: 75 },
+  { time: "07:00", cases: 82, efficiency: 78 },
+  { time: "08:00", cases: 85, efficiency: 80 },
+  { time: "09:00", cases: 90, efficiency: 85 },
+  { time: "10:00", cases: 93, efficiency: 90 },
+  { time: "11:00", cases: 95, efficiency: 92 },
+  { time: "12:00", cases: 94, efficiency: 88 },
+  { time: "13:00", cases: 93, efficiency: 82 },
+  { time: "14:00", cases: 90, efficiency: 80 },
+  { time: "15:00", cases: 87, efficiency: 78 },
+  { time: "16:00", cases: 85, efficiency: 75 },
+  { time: "17:00", cases: 83, efficiency: 72 },
+  { time: "18:00", cases: 81, efficiency: 70 },
+  { time: "19:00", cases: 80, efficiency: 68 },
+  { time: "20:00", cases: 79, efficiency: 65 },
+  { time: "21:00", cases: 78, efficiency: 62 },
+  { time: "22:00", cases: 77, efficiency: 60 },
+  { time: "23:00", cases: 76, efficiency: 58 },
 ];
 
-// Generate sample data for weekly view with two data series
+// Generate sample data for weekly view with updated case values
 const generateWeeklyData = () => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const weeklyData = [];
   
   days.forEach(day => {
-    // Random value between 45-70 for 12 AM
-    const amValue = Math.floor(Math.random() * 26) + 45;
-    // Random value between 45-70 for 12 PM
-    const pmValue = Math.floor(Math.random() * 26) + 45;
+    // Random value between 75-95 for 12 AM
+    const amValue = Math.floor(Math.random() * 21) + 75;
+    // Random value between 75-95 for 12 PM
+    const pmValue = Math.floor(Math.random() * 21) + 75;
     // Random efficiency value between 60-90
     const amEfficiency = Math.floor(Math.random() * 31) + 60;
     // Random efficiency value between 60-90
@@ -81,15 +80,15 @@ const generateWeeklyData = () => {
   return weeklyData;
 };
 
-// Generate sample data for monthly view (30 days)
+// Generate sample data for monthly view (30 days) with updated case values
 const generateMonthlyData = () => {
   const monthlyData = [];
   
-  // Generate data for 30 days
+  // Generate data for 30 days with values between 525-665 (7 days × daily range 75-95)
   for (let i = 1; i <= 30; i++) {
     monthlyData.push({ 
       time: `Day ${i}`, 
-      cases: Math.floor(Math.random() * 100) + 300,
+      cases: Math.floor(Math.random() * 141) + 525,
       efficiency: Math.floor(Math.random() * 20) + 70 // Random efficiency between 70-90
     });
   }
@@ -97,7 +96,7 @@ const generateMonthlyData = () => {
   return monthlyData;
 };
 
-// Generate sample data for quarterly view (3 months)
+// Generate sample data for quarterly view (3 months) with updated case values
 const generateQuarterlyData = () => {
   const months = ["Jan", "Feb", "Mar"];
   const quarterlyData = [];
@@ -107,7 +106,7 @@ const generateQuarterlyData = () => {
     for (let week = 1; week <= 4; week++) {
       quarterlyData.push({
         time: `${month} W${week}`,
-        cases: Math.floor(Math.random() * 500) + 1000,
+        cases: Math.floor(Math.random() * 141) + 525, // Weekly values between 525-665
         efficiency: Math.floor(Math.random() * 15) + 75 // Random efficiency between 75-90
       });
     }
@@ -146,14 +145,26 @@ export const DualLineChart: React.FC<DualLineChartProps> = ({ selectedSpecialtie
     const efficiencyFactor = getRandomEfficiencyFactor();
     
     const currentData = getChartData();
-    const adjustedData = currentData.map(item => ({
-      ...item,
-      cases: Math.round(item.cases * caseFactor),
-      efficiency: Math.min(100, Math.round(item.efficiency * efficiencyFactor)) // Cap at 100% efficiency
-    }));
+    const adjustedData = currentData.map(item => {
+      let newCases: number;
+      
+      if (viewType === "daily" || viewType === "weekly") {
+        // For daily/weekly views, ensure cases are between 75-95
+        newCases = Math.max(75, Math.min(95, Math.round(item.cases * caseFactor)));
+      } else {
+        // For monthly/quarterly views, ensure values are between 525-665
+        newCases = Math.max(525, Math.min(665, Math.round(item.cases * caseFactor)));
+      }
+      
+      return {
+        ...item,
+        cases: newCases,
+        efficiency: Math.min(100, Math.round(item.efficiency * efficiencyFactor)) // Cap at 100% efficiency
+      };
+    });
     
     setTimeBasedData(adjustedData);
-  }, [timeRange]);
+  }, [timeRange, viewType]);
   
   // Effect to filter data when selected specialties change
   useEffect(() => {

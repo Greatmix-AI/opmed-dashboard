@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -91,7 +90,7 @@ const Index = () => {
   ) => {
     // Base values (reference values)
     const baseMetrics = {
-      caseVolume: 3,
+      caseVolume: 85, // Updated to be in the middle of 75-95 range
       caseMinutes: 4089012,
       staffedRoomUtilization: 76,
       blockUtilization: 70,
@@ -178,7 +177,7 @@ const Index = () => {
     
     // Apply variations to all metrics
     const newMetrics = {
-      caseVolume: applyVariation(baseMetrics.caseVolume * specialtyFactor, timeVariationSeed, specialtyFactor, averageSpecialtyVariation),
+      caseVolume: Math.max(75, Math.min(95, applyVariation(baseMetrics.caseVolume * specialtyFactor, timeVariationSeed, specialtyFactor, averageSpecialtyVariation))), // Ensure between 75-95
       caseMinutes: Math.round(applyVariation(baseMetrics.caseMinutes * specialtyFactor, timeVariationSeed, specialtyFactor, averageSpecialtyVariation)),
       staffedRoomUtilization: Math.min(100, applyVariation(baseMetrics.staffedRoomUtilization, timeVariationSeed, 1, averageSpecialtyVariation)),
       blockUtilization: Math.min(100, applyVariation(baseMetrics.blockUtilization, timeVariationSeed, 1, averageSpecialtyVariation)),
@@ -236,15 +235,14 @@ const Index = () => {
               </Select>
             </div>
             {timeRange === "Custom Range" && <DateRangePicker />}
-          </div>
-          <div className="flex gap-3 max-sm:flex-col max-sm:w-full">
-            <FilterDropdown 
-              label="Select specialities" 
-              options={specialties}
-              selectedOptions={selectedSpecialties}
-              onSelectionChange={handleSpecialtyChange}
-            />
-            <FilterDropdown label="Select location" />
+            <div className="ml-0">
+              <FilterDropdown 
+                label="Select specialities" 
+                options={specialties}
+                selectedOptions={selectedSpecialties}
+                onSelectionChange={handleSpecialtyChange}
+              />
+            </div>
           </div>
         </div>
 

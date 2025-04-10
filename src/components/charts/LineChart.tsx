@@ -22,44 +22,44 @@ interface LineChartProps {
   timeRange?: string; // Make the timeRange prop optional for backward compatibility
 }
 
-// Sample data for 24-hour case volume
+// Sample data for 24-hour case volume with updated case values
 const hourlyData = [
-  { time: "00:00", cases: 5 },
-  { time: "01:00", cases: 3 },
-  { time: "02:00", cases: 2 },
-  { time: "03:00", cases: 1 },
-  { time: "04:00", cases: 1 },
-  { time: "05:00", cases: 2 },
-  { time: "06:00", cases: 4 },
-  { time: "07:00", cases: 8 },
-  { time: "08:00", cases: 15 },
-  { time: "09:00", cases: 22 },
-  { time: "10:00", cases: 25 },
-  { time: "11:00", cases: 27 },
-  { time: "12:00", cases: 24 },
-  { time: "13:00", cases: 21 },
-  { time: "14:00", cases: 18 },
-  { time: "15:00", cases: 15 },
-  { time: "16:00", cases: 13 },
-  { time: "17:00", cases: 11 },
-  { time: "18:00", cases: 9 },
-  { time: "19:00", cases: 7 },
-  { time: "20:00", cases: 6 },
-  { time: "21:00", cases: 5 },
-  { time: "22:00", cases: 4 },
-  { time: "23:00", cases: 3 },
+  { time: "00:00", cases: 76 },
+  { time: "01:00", cases: 75 },
+  { time: "02:00", cases: 75 },
+  { time: "03:00", cases: 76 },
+  { time: "04:00", cases: 77 },
+  { time: "05:00", cases: 78 },
+  { time: "06:00", cases: 80 },
+  { time: "07:00", cases: 82 },
+  { time: "08:00", cases: 85 },
+  { time: "09:00", cases: 90 },
+  { time: "10:00", cases: 93 },
+  { time: "11:00", cases: 95 },
+  { time: "12:00", cases: 94 },
+  { time: "13:00", cases: 93 },
+  { time: "14:00", cases: 90 },
+  { time: "15:00", cases: 87 },
+  { time: "16:00", cases: 85 },
+  { time: "17:00", cases: 83 },
+  { time: "18:00", cases: 81 },
+  { time: "19:00", cases: 80 },
+  { time: "20:00", cases: 79 },
+  { time: "21:00", cases: 78 },
+  { time: "22:00", cases: 77 },
+  { time: "23:00", cases: 76 },
 ];
 
-// Generate sample data for weekly view
+// Generate sample data for weekly view with updated case values
 const generateWeeklyData = () => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const weeklyData = [];
   
   days.forEach(day => {
-    // Random value between 45-70 for 12 AM
-    const amValue = Math.floor(Math.random() * 26) + 45;
-    // Random value between 45-70 for 12 PM
-    const pmValue = Math.floor(Math.random() * 26) + 45;
+    // Random value between 75-95 for 12 AM
+    const amValue = Math.floor(Math.random() * 21) + 75;
+    // Random value between 75-95 for 12 PM
+    const pmValue = Math.floor(Math.random() * 21) + 75;
     
     weeklyData.push({ time: `${day} 12 AM`, cases: amValue });
     weeklyData.push({ time: `${day} 12 PM`, cases: pmValue });
@@ -68,22 +68,22 @@ const generateWeeklyData = () => {
   return weeklyData;
 };
 
-// Generate sample data for monthly view (30 days)
+// Generate sample data for monthly view (30 days) with updated case values
 const generateMonthlyData = () => {
   const monthlyData = [];
   
-  // Generate data for 30 days
+  // Generate data for 30 days with values between 525-665 (7 days × daily range 75-95)
   for (let i = 1; i <= 30; i++) {
     monthlyData.push({ 
       time: `Day ${i}`, 
-      cases: Math.floor(Math.random() * 100) + 300
+      cases: Math.floor(Math.random() * 141) + 525
     });
   }
   
   return monthlyData;
 };
 
-// Generate sample data for quarterly view (3 months)
+// Generate sample data for quarterly view (3 months) with updated case values
 const generateQuarterlyData = () => {
   const months = ["Jan", "Feb", "Mar"];
   const quarterlyData = [];
@@ -91,9 +91,10 @@ const generateQuarterlyData = () => {
   months.forEach(month => {
     // Weekly data points for each month (4 weeks per month)
     for (let week = 1; week <= 4; week++) {
+      // Weekly values between 525-665
       quarterlyData.push({
         time: `${month} W${week}`,
-        cases: Math.floor(Math.random() * 500) + 1000
+        cases: Math.floor(Math.random() * 141) + 525
       });
     }
   });
@@ -126,7 +127,7 @@ export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties, timeR
     const currentData = getChartData();
     const adjustedData = currentData.map(item => ({
       ...item,
-      cases: Math.round(item.cases * factor)
+      cases: Math.max(75, Math.min(95, Math.round(item.cases * factor))) // Ensure daily is 75-95
     }));
     
     setTimeBasedData(adjustedData);
@@ -143,18 +144,32 @@ export const LineChart: React.FC<LineChartProps> = ({ selectedSpecialties, timeR
       return;
     }
     
-    // Filter data based on selected specialties
-    // This is a simplified example - in a real-world scenario,
-    // you would have data specific to each specialty
-    
     // Apply a multiplier based on selected specialties to simulate filtering
     // More selected specialties = more data points with higher values
     const multiplier = specialtiesArray.length / 8; // 8 is the total number of specialties
     
-    const newData = timeBasedData.map(item => ({
-      ...item,
-      cases: Math.round(item.cases * multiplier)
-    }));
+    const newData = timeBasedData.map(item => {
+      let newCases: number;
+      
+      if (viewType === "daily") {
+        // For daily view, ensure cases are between 75-95
+        newCases = Math.max(75, Math.min(95, Math.round(item.cases * multiplier)));
+      } else if (viewType === "weekly") {
+        // For weekly view (twice daily data points)
+        newCases = Math.max(75, Math.min(95, Math.round(item.cases * multiplier)));
+      } else if (viewType === "monthly") {
+        // For monthly view, ensure values are between 525-665 (7 days × daily range 75-95)
+        newCases = Math.max(525, Math.min(665, Math.round(item.cases * multiplier)));
+      } else { // quarterly
+        // For quarterly view, scale appropriately
+        newCases = Math.max(525, Math.min(665, Math.round(item.cases * multiplier)));
+      }
+      
+      return {
+        ...item,
+        cases: newCases
+      };
+    });
     
     setFilteredData(newData);
   }, [selectedSpecialties, viewType, timeBasedData]);
